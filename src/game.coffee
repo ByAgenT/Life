@@ -11,4 +11,12 @@ makeMap = (size) ->
 		map.push row
 
 #TODO: make render function
-
+renderMap = (map) ->
+	console.log "Start map render..."
+	$map = $('#map').empty()
+	for row in map
+		for cell in row
+			$map.append $("<div>").addClass("c-#{cell}")
+	console.log "Map render finished!"
+$ ->
+	renderMap makeMap(map_size)
