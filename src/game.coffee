@@ -1,5 +1,6 @@
 map_size = 60
 map = []
+timer = undefined
 
 class Cell
     constructor: (isAlive, id, x, y) ->
@@ -26,25 +27,52 @@ makeMap = (size) ->
 
 #Render map to page
 renderMap = (map) ->
-    console.log "Start map render..."
     $map = $('#map').empty()
     for row in map
         for cell in row
             if cell.isAlive then $map.append $("<div>").attr('id', cell.id).addClass('alive') else $map.append $("<div>").attr('id', cell.id).addClass('dead')          
-    console.log "Map render finished!"
+    console.log "Map rendered!"
 
 #Get neighbours alive cells
 getNeighbours = (map, x, y) ->
+    #TODO: End of map protection
     count = 0
-    count++ if map[x+1][y].isAlive
-    count++ if map[x+1][y+1].isAlive
-    count++ if map[x][y+1].isAlive
-    count++ if map[x-1][y+1].isAlive
-    count++ if map[x-1][y].isAlive
-    count++ if map[x-1][y-1].isAlive
-    count++ if map[x][y-1].isAlive
-    count++ if map[x+1][y-1].isAlive
+    try count++ if map[x+1][y].isAlive
+    try count++ if map[x+1][y+1].isAlive
+    try count++ if map[x][y+1].isAlive
+    try count++ if map[x-1][y+1].isAlive
+    try count++ if map[x-1][y].isAlive
+    try count++ if map[x-1][y-1].isAlive
+    try count++ if map[x][y-1].isAlive
+    try count++ if map[x+1][y-1].isAlive
     count
+
+switchCell = (obj ,x, y) ->
+    if obj.hasClass('dead')
+            obj.removeClass('dead').addClass('alive')
+            map[x-1][y-1].isAlive = true
+            console.log "Neighbours: " + getNeighbours(map, x-1, y-1)
+        else 
+            obj.removeClass('alive').addClass('dead')
+            map[x-1][y-1].isAlive = false
+            console.log("Changed to: " + map[x-1][y-1])
+
+# move to the next generation
+nextGeneration = (map)->
+    toChange = []
+    for row in map
+        for cell in row
+            neighbours = getNeighbours(map, cell.x-1, cell.y-1)
+            if cell.isAlive && (neighbours < 2 || neighbours > 3)
+                toChange.push cell
+                continue
+            if !cell.isAlive && neighbours == 3
+                toChange.push cell
+                continue
+    for ccell in toChange
+        switchCell($('#' + ccell.id), ccell.x, ccell.y)
+
+
 
 
 $ ->
@@ -56,16 +84,16 @@ $ ->
         x = Math.floor(id / 61) + 1
         y = id % 60 || 60
         console.log "x: " + x + " y: " + y
-        if $(@).hasClass('dead')
-            $(@).removeClass('dead').addClass('alive')
-            map[x-1][y-1].isAlive = true
-            #TODO: check getNeighbours
-            console.log "Neighbours: " + getNeighbours(map, x-1, y-1)
-        else 
-            $(@).removeClass('alive').addClass('dead')
-            map[x-1][y-1].isAlive = false
-            console.log("Changed to: " + map[x-1][y-1])
+        switchCell($(@), x, y)
 
+    $("#step").click ->
+        nextGeneration(map)
 
+    $("#start").click ->
+            timer = setInterval ( ->
+                nextGeneration(map)
+                ), 500
+            console.log "Timer started..."
 
-
+    $("#stop").click ->
+        clearInterval(timer)
