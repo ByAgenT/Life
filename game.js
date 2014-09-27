@@ -108,12 +108,10 @@
   switchCell = function(obj, x, y) {
     if (obj.hasClass('dead')) {
       obj.removeClass('dead').addClass('alive');
-      map[x - 1][y - 1].isAlive = true;
-      return console.log("Neighbours: " + getNeighbours(map, x - 1, y - 1));
+      return map[x - 1][y - 1].isAlive = true;
     } else {
       obj.removeClass('alive').addClass('dead');
-      map[x - 1][y - 1].isAlive = false;
-      return console.log("Changed to: " + map[x - 1][y - 1]);
+      return map[x - 1][y - 1].isAlive = false;
     }
   };
 
@@ -152,17 +150,15 @@
       id = $(this).attr('id');
       x = Math.floor(id / 61) + 1;
       y = id % 60 || 60;
-      console.log("x: " + x + " y: " + y);
       return switchCell($(this), x, y);
     });
     $("#step").click(function() {
       return nextGeneration(map);
     });
     $("#start").click(function() {
-      timer = setInterval((function() {
+      return timer = setInterval((function() {
         return nextGeneration(map);
-      }), 500);
-      return console.log("Timer started...");
+      }), 100);
     });
     return $("#stop").click(function() {
       return clearInterval(timer);

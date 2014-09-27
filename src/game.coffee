@@ -35,7 +35,6 @@ renderMap = (map) ->
 
 #Get neighbours alive cells
 getNeighbours = (map, x, y) ->
-    #TODO: End of map protection
     count = 0
     try count++ if map[x+1][y].isAlive
     try count++ if map[x+1][y+1].isAlive
@@ -49,13 +48,11 @@ getNeighbours = (map, x, y) ->
 
 switchCell = (obj ,x, y) ->
     if obj.hasClass('dead')
-            obj.removeClass('dead').addClass('alive')
-            map[x-1][y-1].isAlive = true
-            console.log "Neighbours: " + getNeighbours(map, x-1, y-1)
-        else 
-            obj.removeClass('alive').addClass('dead')
-            map[x-1][y-1].isAlive = false
-            console.log("Changed to: " + map[x-1][y-1])
+        obj.removeClass('dead').addClass('alive')
+        map[x-1][y-1].isAlive = true
+    else 
+        obj.removeClass('alive').addClass('dead')
+        map[x-1][y-1].isAlive = false
 
 # move to the next generation
 nextGeneration = (map)->
@@ -83,7 +80,6 @@ $ ->
         id = $(@).attr('id')
         x = Math.floor(id / 61) + 1
         y = id % 60 || 60
-        console.log "x: " + x + " y: " + y
         switchCell($(@), x, y)
 
     $("#step").click ->
@@ -92,8 +88,7 @@ $ ->
     $("#start").click ->
             timer = setInterval ( ->
                 nextGeneration(map)
-                ), 500
-            console.log "Timer started..."
+                ), 100
 
     $("#stop").click ->
         clearInterval(timer)
